@@ -51,7 +51,7 @@
         topic={topicAlarm}
     />
     <Number x={240} y={0} w={100} h={80} size={50} topic={topicSetpoint} />
-    <Text x={340} y={0} w={40} h={80} align={Align.left} text="%" />
+    <Text x={340} y={0} w={40} h={80} size={36} align={Align.left} text="%" />
     <Button x={390} y={0} w={80} h={80} text="−" action={minus} />
     <Button x={480} y={0} w={80} h={80} text="+" action={plus} />
 </Group>
