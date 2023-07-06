@@ -1,72 +1,45 @@
 <script lang="ts">
+    import { onMount } from "svelte";
+    import Mqtt from "../../net/Mqtt";
     import { writable, type Writable } from "svelte/store";
-    import Value from "../../view/settings/Value.svelte";
-    import P277GSM from "../../view/systems/P277GSM.svelte";
-    import P277RSM from "../../view/systems/P277RSM.svelte";
-    import P277TU from "../../view/systems/P277TU.svelte";
-    import P277YO from "../../view/systems/P277YO.svelte";
+    import HandBool from "../../view/settings/HandBool.svelte";
+    import HandNumber from "../../view/settings/HandNumber.svelte";
 
-    const items = [
-        "/nku/module1/ai1",
-        "/nku/module1/ai2",
-        "/nku/module1/ai3",
-        "/nku/module1/ai4",
-        "/nku/module1/ai5",
-        "/nku/module1/ai6",
-        "/nku/module1/ai7",
-        "/nku/module1/ai8",
-        "/nku/module1/ai9",
-        "/nku/module1/ai10",
-        "/nku/module1/ai11",
-        "/nku/module1/ai12",
-        "/nku/module1/ai13",
-        "/nku/module1/ai14",
-        "/nku/module1/ai15",
-        "/nku/module1/ai16",
-        "/nku/module1/di1",
-        "/nku/module1/di2",
-        "/nku/module1/di3",
-        "/nku/module1/di4",
-        "/nku/module1/di5",
-        "/nku/module1/di6",
-        "/nku/module1/di7",
-        "/nku/module1/di8",
-    ];
+    type IO = {
+        name: string;
+        topic: string;
+        type: string;
+    };
 
-    const projects = new Map([
-        ["277 / ША-ГСМ", P277GSM],
-        ["277 / ША-РСМ", P277RSM],
-        ["277 / ША-ТУ", P277TU],
-        ["277 / ША-УО", P277YO],
-    ]);
+    let views = writable<string[]>([]);
+    let vals = writable<IO[]>([]);
+    let selected: string;
 
-    const project: Writable<any> = writable();
+    onMount(() => {
+        Mqtt.subscribe("/views/list", (v) => {
+            views.set(JSON.parse(v));
+        });
+        Mqtt.subscribe("/IO/list", (v) => {
+            console.log(v);
+            vals.set(JSON.parse(v));
+        });
+    });
+
+    function onChange() {
+        Mqtt.publish("/view/selected", selected);
+    }
 </script>
 
-<div>
-    {#each items as item}
-        <Value topic={item} />
-    {/each}
-</div>
-
-<select bind:value={$project}>
-    {#each Array.from(projects.keys()) as project}
-        <option>{project}</option>
+<select bind:value={selected} on:change={onChange}>
+    {#each $views as view}
+        <option>{view}</option>
     {/each}
 </select>
 
-<div class="system">
-    <svelte:component this={projects.get($project)} />
-</div>
-
-<style>
-    .system {
-        position: relative;
-        width: 1024px;
-        min-height: 600px;
-        box-sizing: border-box;
-        border: 1px solid #000;
-        margin-bottom: 20px;
-        user-select: none;
-    }
-</style>
+{#each $vals as val}
+    {#if val.type === "boolean"}
+        <HandBool name={val.name} topic={val.topic} />
+    {:else if val.type === "number"}
+        <HandNumber name={val.name} topic={val.topic} />
+    {/if}
+{/each}
