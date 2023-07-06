@@ -40,7 +40,7 @@
 </script>
 
 <Group {x} {y}>
-    <Text x={0} y={0} w={160} h={80} size={30} align={Align.left} {text} />
+    <Text x={0} y={0} w={160} h={80} size={36} align={Align.left} {text} />
     <Image
         x={170}
         y={10}
