@@ -12,9 +12,12 @@
 
 <style>
     .system {
-        background-color: white;
         position: relative;
         box-sizing: border-box;
         user-select: none;
     }
+    
+    :global(body) {
+		background-color: white;
+	}
 </style>
